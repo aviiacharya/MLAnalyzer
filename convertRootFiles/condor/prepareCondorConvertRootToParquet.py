@@ -2,22 +2,25 @@ import os
 
 fileList = []
 xrootd='root://cmsxrootd.fnal.gov/' # FNAL
-dirName = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/DYToTauTau_M-50_13TeV-powheg_pythia8/DYToTauTau_ntuples-AOD/231013_070551/0000/'
-#dirName = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8/WJets_ntuples_miniAOD/231005_052057/0000/'
+#dirName = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/DYToTauTau_M-50_13TeV-powheg_pythia8/DYToTauTau_ntuples-AOD/231013_070551/0000/'
+dirName = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8/WJets_ntuples_AOD/231013_055218/0000'
+#dirName='/eos/uscms/store/group/lpcml/rchudasa/NTuples/QCD_Pt-15to7000_TuneCP5_Flat_13TeV_pythia8/QCD_Pt-15to7000_ntuples-AOD/231013_065542/0000/'
+#dirName='/eos/uscms/store/group/lpcml/rchudasa/NTuples/TTToHadronic_TuneCP5_13TeV_powheg-pythia8/ttbar-ntuples-AOD-v2/231016_163729/0000/'
 for roots,dirs,files in os.walk(dirName):
     for name in files:
 	if name.endswith('root'):
 		fnalDir = dirName[dirName.find('/store'):]
         	file = os.path.join(xrootd+fnalDir,name)
         	fileList.append(file)
+		print(file)
 
-dirName2 = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/DYToTauTau_M-50_13TeV-powheg_pythia8/DYToTauTau_ntuples-AOD/231013_070551/0001/'
-for roots,dirs,files in os.walk(dirName2):
-    for name in files:
-        if name.endswith('root'):
-		fnalDir2 = dirName2[dirName2.find('/store'):]
-                file = os.path.join(xrootd+fnalDir2,name)
-                fileList.append(file)
+#dirName2 = '/eos/uscms/store/group/lpcml/rchudasa/NTuples/DYToTauTau_M-50_13TeV-powheg_pythia8/DYToTauTau_ntuples-AOD/231013_070551/0001/'
+#for roots,dirs,files in os.walk(dirName2):
+#    for name in files:
+#        if name.endswith('root'):
+#		fnalDir2 = dirName2[dirName2.find('/store'):]
+#                file = os.path.join(xrootd+fnalDir2,name)
+#                fileList.append(file)
 
 def divide_list(big_list, chunk_size):
     divided_lists = []
@@ -39,8 +42,12 @@ def generate_condor_scripts(numScripts, output_directory):
         # Generate a unique job name for each script
         job_name = "jobConvertRootToPq_%d"%(i)
         inputFileList = ','.join(dividedFileList[i])
-        outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles/DYToTauTau_M-50_13TeV-powheg_pythia8/AODJets/DYToTauTau_M-50_13TeV-powheg_pythia8_%d.parquet"%(i)
-        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8/miniAODJets/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8_%d.parquet"%(i)
+        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles_correctTrackerLayerHits_SecVtxInfoAdded/DYToTauTau_M-50_13TeV-powheg_pythia8/AODJets-inference/DYToTauTau_M-50_13TeV-powheg_pythia8_%d.parquet"%(i)
+        outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles_correctTrackerLayerHits_SecVtxInfoAdded/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8/AODJets-Inference/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8_%d.parquet"%(i)
+        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles/DYToTauTau_M-50_13TeV-powheg_pythia8/AODJets/DYToTauTau_M-50_13TeV-powheg_pythia8_%d.parquet"%(i)
+        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8/AODJets/WJetsToLNu_TuneCP5_13TeV_madgraphMLM-pythia8_%d.parquet"%(i)
+        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles_correctTrackerLayerHits_SecVtxInfoAdded/QCD_Pt-15to7000_TuneCP5_Flat_13TeV_pythia8/AODJets-Inference/QCD_Pt-15to7000_TuneCP5_Flat_13TeV_pythia8_%d.parquet"%(i)
+        #outputFile = "/eos/cms/store/group/phys_heavyions/rchudasa/e2e/ParquetFiles_correctTrackerLayerHits_SecVtxInfoAdded/TTToHadronic_TuneCP5_13TeV_powheg-pythia8/AODJets-Inference/TTToHadronic_TuneCP5_13TeV_powheg-pythia8_%d.parquet"%(i)
         #print(type(outputFile))
         # Define the contents of the SLURM bash script
         script_contents = """#!/bin/bash
@@ -83,9 +90,11 @@ queue 1
         print("Generated condor sub script: %s"%(condor_path))
 
 # Example usage
-#output_directory = "condorScriptsQCD"
-#output_directory = "condorScriptsWJets"
-output_directory = "condorScriptsDYTauTau"
+#output_directory = "condorScriptsTTbar_Inference"
+#output_directory = "condorScriptsQCD_Inference"
+output_directory = "condorScriptsWJets_Inference"
+#output_directory = "condorScriptsDYTauTau_Inference"
+#output_directory = "condorScriptsDYTauTau"
 #output_directory = "condorScriptsDYEE"
 #output_directory = "condorScriptsQCDEMEnriched"
 

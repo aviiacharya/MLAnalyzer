@@ -96,7 +96,7 @@ data = {} # Arrays to be written to parquet should be saved to data dict
 sw = ROOT.TStopwatch()
 sw.Start()
 for iEvt in range(iEvtStart,iEvtEnd):
-
+    
     # Initialize event
     rhTree.GetEntry(iEvt)
     
@@ -124,84 +124,18 @@ for iEvt in range(iEvtStart,iEvtEnd):
     #data['X_CMSII'] = np.stack([TracksAtECAL_pt, TracksAtECAL_dz, TracksAtECAL_d0, ECAL_energy], axis=0) # (4, 280, 360)
     #data['X_CMSII'] = np.stack([TracksAtECAL_pt, TracksAtECAL_dz, TracksAtECAL_d0, ECAL_energy, HBHE_energy, PixAtEcal_1, PixAtEcal_2, PixAtEcal_3, PixAtEcal_4], axis=0) # (9, 280, 360)
 
-    # Jet attributes 
-    ys      = rhTree.jet_IsTau
-    #ys      = rhTree.jet_IsEle
-    jetMs   = rhTree.jet_M
-    jetPts  = rhTree.jet_Pt
-    #dRs    = rhTree.jet_dR
-    iphis  = rhTree.jetSeed_iphi
-    ietas  = rhTree.jetSeed_ieta
-    #pdgIds = rhTree.jet_PdgIds
-    genPts = rhTree.gen_pt
-    genEtas = rhTree.gen_eta
-    njets  = len(ys)
+    # Create pyarrow.Table
+    pqdata = [pa.array([d]) if (np.isscalar(d) or type(d) == list) else pa.array([d.tolist()]) for d in data.values()]
 
-    for i in range(njets):
+    table = pa.Table.from_arrays(pqdata, list(data.keys())) #python3
+    #table = pa.Table.from_arrays(pqdata, data.keys())#python2
 
-        data['y']       = ys[i]
-        data['jetM']    = jetMs[i]
-        data['jetPt']   = jetPts[i]
-        data['genPt']   = genPts[i]
-        data['genEta']  = genEtas[i]
-        #data['dR']    = dRs[i]
-        data['iphi']  = iphis[i]
-        data['ieta']  = ietas[i]
-        #data['pdgId'] = pdgIds[i]
-        data['metSumEt'] = np.float32(rhTree.MET_sumET)[0]
-        data['metPt']    = np.float32(rhTree.MET_pt)[0]
-        data['metPhi']   = np.float32(rhTree.MET_phi)[0]
-        data['nPVtx']    = rhTree.nVtx
-        data['nPVtx_x']  = np.array(rhTree.Vtx_x)[0]
-        data['nPVtx_y']  = np.array(rhTree.Vtx_y)[0]
-        data['nPVtx_z']  = np.array(rhTree.Vtx_z)[0]
-        data['X_jet'] = crop_jet(X_CMSII, data['iphi'], data['ieta']) # (13, 125, 125)
-	
-    	numSecVtx = np.array(np.array(rhTree.jetSV_Pt)[i], dtype=float).size
-	#print("Event:",iEvt, " no of jets", njets)
+    if iEvtStart == 0:
+        writer = pq.ParquetWriter(outStr, table.schema, compression='snappy')
 
-    	if njets > 1:
-    		numSecVtx = np.array(np.array(rhTree.jetSV_Pt)[i], dtype=float).size
-		#print("Secondary vertex pt", np.array(np.array(rhTree.jetSV_Pt)[i]).size)
-    		#numSecVtx = np.array(np.array(rhTree.jetSV_Pt)[i], dtype=float).size
-		
-    		data['nsecVtx'] = numSecVtx
-    		if numSecVtx == 0:
-                	data['secVtx_Pt'] = np.array([0.0])
-                	data['secVtx_jet_dR'] = np.array([0.0])
-                	data['secVtx_Mass'] = np.array([0.0])
-                	data['secVtx_NTracks'] = np.array([0.0])
-    		else:
-                	data['secVtx_Pt'] = np.array(np.array(rhTree.jetSV_Pt)[i], dtype=float)
-                	data['secVtx_jet_dR'] = np.array(np.array(rhTree.jetSV_DeltaR)[i], dtype=float)
-                	data['secVtx_Mass'] = np.array(np.array(rhTree.jetSV_Mass)[i], dtype=float)
-                	data['secVtx_NTracks'] = np.array(np.array(rhTree.jetSV_ntracks)[i], dtype=float)
-    	else:
-        	numSecVtx = np.array(rhTree.jetSV_Pt, dtype=float)[i].size
-    		data['nsecVtx'] = numSecVtx
-            	if numSecVtx == 0:
-                	data['secVtx_Pt'] = np.array([0.0])
-                	data['secVtx_jet_dR'] = np.array([0.0])
-                	data['secVtx_Mass'] = np.array([0.0])
-                	data['secVtx_NTracks'] = np.array([0.0])
-            	else:
-                	data['secVtx_Pt'] = np.array(rhTree.jetSV_Pt, dtype=float)[i]
-                	data['secVtx_jet_dR'] = np.array(rhTree.jetSV_DeltaR, dtype=float)[i]
-                	data['secVtx_Mass'] = np.array(rhTree.jetSV_Mass, dtype=float)[i]
-                	data['secVtx_NTracks'] = np.array(rhTree.jetSV_ntracks, dtype=float)[i]
-        # Create pyarrow.Table
+    writer.write_table(table)
 
-        pqdata = [pa.array([d]) if (np.isscalar(d) or type(d) == list) else pa.array([d.tolist()]) for d in data.values()]
-
-        table = pa.Table.from_arrays(pqdata, list(data.keys())) #python3
-        #table = pa.Table.from_arrays(pqdata, data.keys())#python2
-
-        if nJets == 0:
-            writer = pq.ParquetWriter(outStr, table.schema, compression='snappy')
-
-        writer.write_table(table)
-
-        nJets += 1
+    #nJets += 1
 
 writer.close()
 print " >> nJets:",nJets
