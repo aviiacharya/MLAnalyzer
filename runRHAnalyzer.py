@@ -18,8 +18,16 @@ cfg='RecHitAnalyzer/python/ConfFile_cfg.py'
 #inputFiles_='file:/eos/cms/store/group/phys_heavyions/rchudasa/e2e/Tau_Run2018A_UL/C69BBD7C-DC9B-3849-89CB-444AF555A078.root'#Data
 #inputFiles_='file:/eos/cms/store/group/phys_heavyions/rchudasa/e2e/officialMC_DYJetsToLL_M-50_TuneCP5_13Tev_RECO/61F13245-CF73-9946-8321-B18051BB8659.root'#official MC
 #inputFiles_='file:../PhaseI_TTbar_13TeV_NoPu_RECO_newGT.root'#pixel checks
+<<<<<<< HEAD
 #inputFiles_='file:/eos/cms/store/group/phys_heavyions/rchudasa/e2e/Tau/Tau_Run2018D_RAW-AOD-multithread/240208_082349/0000/RAW2DIGI_L1Reco_RECO_trackRechitsAdded_2.root'#pixel checks
+<<<<<<< HEAD
 inputFiles_='root://cmseos.fnal.gov//store/group/lpcml/bbbam/MCGeneration/signal_withTrigger/GEN_SIM_HToAATo4Tau_M_8_pythia8_2018UL/raw_to_AODSIM_HToAATo4Tau_M_8/240606_182926/0000/AODSIM_HToAATo4Tau_46_6.root'#pixel checks
+=======
+=======
+inputFiles_='file:/uscms/home/aacharya/nobackup/CMSSW_10_6_20/src/MLAnalyzer/0307C1DA-E49C-AB4B-9179-C70BE232321E.root' #Boosted_top_data_from_ana's_note
+#inputFiles = 'file:/0307C1DA-E49C-AB4B-9179-C70BE232321E.root'
+>>>>>>> 97c1794 (Your descriptive commit message)
+>>>>>>> 21bc682 (Your descriptive commit message)
 
 #maxEvents_=10
 #maxEvents_=20
@@ -27,7 +35,7 @@ maxEvents_=-1
 skipEvents_=0#
 #outputFile_='MLAnal_PhaseI_TTbar_13TeVu_trackRefitter.root'
 #outputFile_='GJet.root'
-#outputFile_='ttbar_secVertex.root'
+outputFile_='ttbar_secVertex.root'
 #outputFile_='DYToTauTau_subJet.root'
 #outputFile_='WJets_secVertex.root'
 #outputFile_='dyToEE.root'

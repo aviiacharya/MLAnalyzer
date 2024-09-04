@@ -7,15 +7,20 @@ from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
 fevt = cms.EDAnalyzer('RecHitAnalyzer'
     #, isDebug                        = cms.bool(True)
     #, isDebug                        = cms.bool(False)
-    , task                           = cms.string("dijet_ditau")
+    #, task                           = cms.string("dijet_ditau")
     #, task                           = cms.string("tau_classification")
     #, task                           = cms.string("jet_ele_classification")
     #, task                           = cms.string("qcd")
+<<<<<<< HEAD
     #, task                           = cms.string("boostedTop")
     , isMC                           = cms.bool(True)
+=======
+    , task                           = cms.string("boostedTop")
+    , isMC                           = cms.bool(False)
+>>>>>>> 97c1794 (Your descriptive commit message)
     , isSignal                       = cms.bool(False)
     , isW                            = cms.bool(False)
-    , isBoostedTop                   = cms.bool(False)
+    , isBoostedTop                   = cms.bool(True)              #Change
 
     #, tracks = cms.untracked.InputTag('ctfWithMaterialTracks')
     #, EBRecHitCollection             = cms.InputTag('ecalRecHit:EcalRecHitsEB')

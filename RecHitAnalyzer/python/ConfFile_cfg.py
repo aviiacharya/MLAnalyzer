@@ -38,8 +38,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
       #options.inputFiles
-      open('../../../list_sim_aee_hightpt.txt').readlines()
-      #'file:SIM_SinglePi0_ptgun.root'
+      open('/uscms_data/d1/aacharya/CMSSW_10_6_20/src/SIM.txt').readlines()
+      #open('/uscms_data/d1/aacharya/CMSSW_10_6_20/src/SIM_TToHadronic_m100To300_pT170To175_etam2p5To2p5_pythia8_unbiased.root')
       )
     , skipEvents = cms.untracked.uint32(options.skipEvents)
     )
