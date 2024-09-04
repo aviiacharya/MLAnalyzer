@@ -23,7 +23,7 @@ config.General.transferLogs = False
 # CMS cfg file goes here:
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'MLAnalyzer/RecHitAnalyzer/python/ConfFile_cfg.py' # analyzer cfg file
-config.JobType.maxMemoryMB = 2800
+config.JobType.maxMemoryMB = 2500
 
 # Define input and units per job here:
 #config.Data.userInputFiles = open('MLAnalyzer/list_production.txt'%idx).readlines()
@@ -38,7 +38,7 @@ config.Data.publication = False
 # <config.Data.outLFNDirBase>/<config.Data.outputPrimaryDataset>/<config.Data.outputDatasetTag>/
 config.Site.storageSite = 'T3_US_FNALLPC'
 #config.Site.storageSite = 'T2_CH_CERN'
-config.Data.outLFNDirBase = '/store/user/ddicroce/' # add your username as subdirectory
+config.Data.outLFNDirBase = '/store/user/abachary/' # add your username as subdirectory
 #config.Data.outputPrimaryDataset = 'HToTauTau_m3p6To15_pT0To200_ctau0To3_eta0To1p4_biased'
-config.Data.outputPrimaryDataset = 'HToTauTau_m3p6To15_pT20To200_ctau0To3_eta0To1p4_gen_unbiased'
+config.Data.outputPrimaryDataset = 'RHAnalyzer_HToTauTau_m3p6To15_pT20To200_ctau0To3_eta0To1p4_gen_unbiased'
 config.Data.outputDatasetTag = config.General.requestName
