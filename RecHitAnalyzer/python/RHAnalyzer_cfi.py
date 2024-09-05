@@ -11,13 +11,9 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     #, task                           = cms.string("tau_classification")
     #, task                           = cms.string("jet_ele_classification")
     #, task                           = cms.string("qcd")
-<<<<<<< HEAD
     #, task                           = cms.string("boostedTop")
-    , isMC                           = cms.bool(True)
-=======
     , task                           = cms.string("boostedTop")
-    , isMC                           = cms.bool(False)
->>>>>>> 97c1794 (Your descriptive commit message)
+    , isMC                           = cms.bool(True)
     , isSignal                       = cms.bool(False)
     , isW                            = cms.bool(False)
     , isBoostedTop                   = cms.bool(True)              #Change
