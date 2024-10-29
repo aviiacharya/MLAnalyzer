@@ -8,6 +8,7 @@ vector<float> v_top_goodvertices_;
 //vector<float> v_top_jetIsSignal_;        //removed
 vector<float> v_top_jet_pt_;
 vector<float> v_top_jet_eta_;
+vector<float> v_top_jet_phi_;
 vector<float> v_top_jet_energy_;
 vector<float> v_top_jet_m0_;           //thisJet->mass() Line 315 (rest mass m0)
 vector<float> v_top_jet_dR_;
@@ -65,6 +66,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet_top ( TTree* tree, edm::Service<TF
     //tree->Branch("jet_IsSignal",     &v_top_jetIsSignal_);
     tree->Branch("jet_Pt",        &v_top_jet_pt_);
     tree->Branch("jet_Eta",       &v_top_jet_eta_);
+    tree->Branch("jet_Phi",       &v_top_jet_phi_);   // Just added
     tree->Branch("jet_Energy",    &v_top_jet_energy_);
     tree->Branch("jet_m0",        &v_top_jet_m0_);
     tree->Branch("jet_M",        &v_top_jet_M_);     //Added tot mass of daughter particles -> Invariant mass
@@ -140,6 +142,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
         for (reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); ++iGen) {
             
             int id = iGen->pdgId();
+            std::cout << "Gen Particle id: " << id << std::endl;
             if(abs(id) != 6 || iGen->numberOfDaughters()!=2) continue;
             int iw=-1;
             int ib=-1;
@@ -170,11 +173,15 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
         
         
         // Loop over jets
-        for ( unsigned ihad=0;ihad<had_tops.size();ihad++)
+        std::cout << "Number of tops in event: " << had_tops.size() << std::endl;
+        for ( unsigned ihad=0; ihad<had_tops.size(); ihad++)
         {
             float jet_P = 0;
             float jet_E = 0;
             float top_invM = 0;
+            float minJetPt_ = 0.0;
+            float maxJetEta_ = 2.4;
+           // std::cout << "Number of jets in event: " << jets->size() << std::endl;
             
             for ( unsigned iJ = 0; iJ != jets->size(); ++iJ )
             {
@@ -185,22 +192,33 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
                 
                 jet_P = jet_P + iJet->pt();
                 jet_E = jet_E + iJet->energy();
-                if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+		if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
                 if ( std::abs(iJet->eta()) > maxJetEta_) continue;
+              /*  if ( std::abs(iJet->pt()) < minJetPt_ )
+ 
+               	{ std::cout << " >> iJte_pt < minJetPt:"  << std::endl; continue;
+                }
+
+                if ( std::abs(iJet->eta()) > maxJetEta_) 
+
+                { std::cout << " >> iJte_eta < maxJetEta:"  << std::endl; 
+                  std::cout << " >> iJte_eta: "<< iJet->eta()  << std::endl; continue;
+                }*/
                 if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jet_m0:" << iJet->mass() << std::endl;
-                if (had_tops[ihad].DeltaR(vjet)>0.8) continue;
-                if (wdau[ihad].DeltaR(vjet)>0.8) continue;
-                if (bdau[ihad].DeltaR(vjet)>0.8) continue;
+               // if (had_tops[ihad].DeltaR(vjet)>0.8) continue;
+               // if (wdau[ihad].DeltaR(vjet)>0.8) continue;
+               // if (bdau[ihad].DeltaR(vjet)>0.8) continue;
                 
                 if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jet_m0:" << iJet->mass() << std::endl;
+                
+               // top_invM = sqrt(jet_E*jet_E - jet_P*jet_P);
                 
                 vJetIdxs.push_back(iJ);
                 
                 nJet++;
                 break;// This should allow two hardonic tops
             } // jets
-            top_invM = sqrt(jet_E*jet_E - jet_P*jet_P);
-            v_top_jet_M_.push_back(top_invM);
+            
             
             if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
         } // hadronic tops
@@ -249,6 +267,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
    // v_top_jetIsSignal_.clear();
     v_top_jet_pt_.clear();
     v_top_jet_eta_.clear();
+    v_top_jet_phi_.clear();
     v_top_jet_energy_.clear();
     v_top_jet_m0_.clear();
     v_top_jet_dR_.clear();
@@ -314,6 +333,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
     //if ( debug ) std::cout << "\t" << " JETS IN THE EVENT = " << vTauJets.size() << " | Selection requires minpT = " << minJetPt_ << " and maxEta = "<< maxJetEta_ << std::endl;
     
     v_top_goodvertices_.push_back(goodVertices);
+    //v_top_jet_M_.push_back( thisJet->top_invM() );
     
     
     for (int iJ : vJetIdxs){
@@ -326,7 +346,9 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
         v_top_jet_eta_.push_back( thisJet->eta() );
         v_top_jet_energy_.push_back( thisJet->energy() );
         v_top_jet_m0_.push_back( thisJet->mass() );
-        
+        v_top_jet_phi_.push_back( thisJet->phi() );
+        float top_invM = sqrt(pow(thisJet->energy(), 2) - pow(thisJet->px(), 2) - pow(thisJet->py(), 2) - pow(thisJet->pz(), 2));
+        v_top_jet_M_.push_back(top_invM);
         
         TLorentzVector TLVJet(thisJet->px(),thisJet->py(),thisJet->pz(),thisJet->energy());
         double cosTheta = TLVJet.CosTheta();
@@ -449,7 +471,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
         
         std::vector<const reco::VertexCompositePtrCandidate*> jetSVs;
         for (const auto &sv : *secVertices){
-            if (reco::deltaR(sv, *thisJet) < 0.4) {
+            if (reco::deltaR(sv, *thisJet) < 0.8) { //0.4 before
                 jetSVs.push_back(&sv);
             }
         }

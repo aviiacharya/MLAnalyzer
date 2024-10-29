@@ -25,8 +25,8 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , reducedEERecHitCollection      = cms.InputTag('reducedEcalRecHitsEE')
     #, EBDigiCollection               = cms.InputTag('simEcalDigis:ebDigis')
     #, selectedEBDigiCollection       = cms.InputTag('selectDigi:selectedEcalEBDigiCollection')
-    , reducedHBHERecHitCollection    = cms.InputTag('hbhereco')
-    #, reducedHBHERecHitCollection    = cms.InputTag('reducedHcalRecHits:hbhereco')
+    #, reducedHBHERecHitCollection    = cms.InputTag('hbhereco')
+    , reducedHBHERecHitCollection    = cms.InputTag('reducedHcalRecHits:hbhereco')
     , genParticleCollection          = cms.InputTag('genParticles')
     , gedPhotonCollection            = cms.InputTag('gedPhotons')
     , ak4PFJetCollection             = cms.InputTag('ak4PFJets')
@@ -72,7 +72,7 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
 
     # Jet level cfg
     , nJets     = cms.int32(-1)
-    , minJetPt  = cms.double(20.)
+    , minJetPt  = cms.double(0.0)
     , maxJetEta = cms.double(2.4)
     , z0PVCut   = cms.double(0.1)
 

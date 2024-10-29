@@ -38,12 +38,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
       #options.inputFiles
-      open('/uscms_data/d1/aacharya/CMSSW_10_6_20/src/SIM.txt').readlines()
-      #open('/uscms_data/d1/aacharya/CMSSW_10_6_20/src/SIM_TToHadronic_m100To300_pT170To175_etam2p5To2p5_pythia8_unbiased.root')
+      open('/uscms/home/aacharya/nobackup/CMSSW_10_6_20/src/SIM_list.txt').readlines()
+      #open('/eos/uscms/store/user/aacharya/sim_TToHadronic_events10k/241025_073559/0000/sim_TToHadronic_1kevents_2.root')
       )
     , skipEvents = cms.untracked.uint32(options.skipEvents)
     )
 print (" >> Loaded",len(options.inputFiles),"input files from list.")
+
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))  ##Added from Ruchi
 
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
@@ -53,12 +55,18 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(options.outputFile)
     )
 
+##############################################################
+# Event Analysis
+##############################################################
+
+
+
 process.hltFilter = cms.EDFilter("HLTHighLevel",
                                           eventSetupPathsKey = cms.string(''),
                                           TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                                           #HLTPaths = cms.vstring('HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*','HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*','HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*'),
-					  HLTPaths = cms.vstring('HLT_Double*PFTau*'),
-                                          #HLTPaths = cms.vstring('*'),
+					  #HLTPaths = cms.vstring('HLT_Double*PFTau*'),
+                                          HLTPaths = cms.vstring('*'),
                                           andOr = cms.bool(True),
                                           throw = cms.bool(False)
                                           )

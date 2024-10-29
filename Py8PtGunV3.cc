@@ -39,12 +39,12 @@ Py8PtGunV3::Py8PtGunV3( edm::ParameterSet const& ps )
    // ParameterSet defpset ;
    edm::ParameterSet pgun_params =
       ps.getParameter<edm::ParameterSet>("PGunParameters"); // , defpset ) ;
-   fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.2);
-   fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.2);
-   fMinPt      = pgun_params.getParameter<double>("MinPt"); // ,  0.);
-   fMaxPt      = pgun_params.getParameter<double>("MaxPt"); // ,  0.);
-   fMinMass    = pgun_params.getParameter<double>("MinMass"); // ,  0.);
-   fMaxMass    = pgun_params.getParameter<double>("MaxMass"); // ,  0.);
+   fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.5);
+   fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.5);
+   fMinPt      = pgun_params.getParameter<double>("MinPt"); // ,  100.);
+   fMaxPt      = pgun_params.getParameter<double>("MaxPt"); // ,  300.);
+   fMinMass    = pgun_params.getParameter<double>("MinMass"); // ,  170.);
+   fMaxMass    = pgun_params.getParameter<double>("MaxMass"); // ,  175.);
    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle"); //, false) ;
 
 }
@@ -134,16 +134,17 @@ double get_rand_el(std::vector <int> dist) {
       return dist[randomIndex];
 }
 
-std::vector <int> pT_bins   = {170.27777778, 170.55555556, 170.83333333,
-    171.11111111, 171.38888889, 171.66666667, 171.94444444,
-    172.22222222, 172.5       , 172.77777778, 173.05555556,
-    173.33333333, 173.61111111, 173.88888889, 174.16666667,
-    174.44444444, 174.72222222, 175.};
-std::vector <double> m_bins = {111.11111111, 122.22222222, 133.33333333,
+std::vector <double> pT_bins = {111.11111111, 122.22222222, 133.33333333,
     144.44444444, 155.55555556, 166.66666667, 177.77777778,
     188.88888889, 200.        , 211.11111111, 222.22222222,
     233.33333333, 244.44444444, 255.55555556, 266.66666667,
     277.77777778, 288.88888889, 300. };
+std::vector <int> m_bins   = {170.27777778, 170.55555556, 170.83333333,
+    171.11111111, 171.38888889, 171.66666667, 171.94444444,
+    172.22222222, 172.5       , 172.77777778, 173.05555556,
+    173.33333333, 173.61111111, 173.88888889, 174.16666667,
+    174.44444444, 174.72222222, 175.};
+
 
 std::vector <int> occ = {
     100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100//
