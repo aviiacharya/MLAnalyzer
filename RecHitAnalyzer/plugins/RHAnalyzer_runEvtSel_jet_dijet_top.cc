@@ -12,7 +12,17 @@ vector<float> v_top_jet_phi_;
 vector<float> v_top_jet_energy_;
 vector<float> v_top_jet_m0_;           //thisJet->mass() Line 315 (rest mass m0)
 vector<float> v_top_jet_dR_;
-vector<float> v_top_jet_M_;            //Added Invariant mass (M)
+//vector<float> v_top_jet_M_;  //Added Invariant mass (M)
+vector<float> v_gen_top_mass_;
+vector<float> v_gen_top_pt_;
+vector<float> v_gen_top_eta_;
+vector<float> v_gen_top_phi_;
+vector<float> v_reco_top_mass_;
+vector<float> v_reco_top_pt_;
+vector<float> v_reco_top_eta_;
+vector<float> v_reco_top_phi_;
+
+
 
 std::vector<std::vector<int> > seljet_genpart_collid;
 std::vector<std::vector<int> > seljet_genpart_pdgid;
@@ -69,8 +79,18 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet_top ( TTree* tree, edm::Service<TF
     tree->Branch("jet_Phi",       &v_top_jet_phi_);   // Just added
     tree->Branch("jet_Energy",    &v_top_jet_energy_);
     tree->Branch("jet_m0",        &v_top_jet_m0_);
-    tree->Branch("jet_M",        &v_top_jet_M_);     //Added tot mass of daughter particles -> Invariant mass
+   // tree->Branch("jet_M",         &v_top_jet_M_);     //Added tot mass of daughter particles -> Invariant mass
     tree->Branch("jet_dR",        &v_top_jet_dR_);
+    
+    tree->Branch("gen_top_mass",      &v_gen_top_mass_);
+    tree->Branch("gen_top_pt",        &v_gen_top_pt_);
+    tree->Branch("gen_top_eta",       &v_gen_top_eta_);
+    tree->Branch("gen_top_phi",      &v_gen_top_phi_);
+
+    tree->Branch("reco_top_mass",      &v_reco_top_mass_);
+    tree->Branch("reco_top_pt",        &v_reco_top_pt_);
+    tree->Branch("reco_top_eta",       &v_reco_top_eta_);
+    tree->Branch("reco_top_phi",      &v_reco_top_phi_);
     
     tree->Branch("seljet_genpart_collid", &seljet_genpart_collid);
     tree->Branch("seljet_genpart_pdgid", &seljet_genpart_pdgid);
@@ -137,7 +157,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
     
     int nJet = 0;
     
-    std::vector<TLorentzVector> had_tops,bdau,wdau;
+    std::vector<TLorentzVector> gen_tops,bdau,wdau,reco_tops,reco_W;
     if (isBoostedTop_) { //if its boosted top sample
         for (reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); ++iGen) {
             
@@ -162,20 +182,71 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
             const reco::Candidate *b = iGen->daughter(ib);
             while(d->numberOfDaughters() == 1) d = d->daughter(0);
             if(!(abs(d->daughter(0)->pdgId()) > 6 || abs(d->daughter(1)->pdgId()) > 6)) continue; //Initially 10,PDGID should be less tha 7 for quarks
-            TLorentzVector the_top,the_w,the_b;
+            
+            const reco::Candidate* W_dau1 = d->daughter(0);   //daughters of W
+            const reco::Candidate* W_dau2 = d->daughter(1);
+            
+            TLorentzVector the_top,the_w,the_b;   //Gen level
             the_top.SetPtEtaPhiE(iGen->pt(),iGen->eta(),iGen->phi(),iGen->energy());
             the_w.SetPtEtaPhiE(d->pt(),d->eta(),d->phi(),d->energy());
             the_b.SetPtEtaPhiE(b->pt(),b->eta(),b->phi(),b->energy());
-            had_tops.push_back(the_top);
+            
+            gen_tops.push_back(the_top);
             wdau.push_back(the_w);
             bdau.push_back(the_b);
+            
+            TLorentzVector vec_W_dau1, vec_W_dau2, reco_w, reco_top;  //Reco level
+            vec_W_dau1.SetPtEtaPhiE(W_dau1->pt(), W_dau1->eta(), W_dau1->phi(), W_dau1->energy());
+            vec_W_dau2.SetPtEtaPhiE(W_dau2->pt(), W_dau2->eta(), W_dau2->phi(), W_dau2->energy());
+            reco_w = vec_W_dau1 + vec_W_dau2;
+            
+            reco_top = reco_w + the_b;
+            
+            reco_tops.push_back(reco_top);
+            reco_W.push_back(reco_w);
+            
+            
         } //gen particle loop
-        
+
+        v_gen_top_mass_.clear();
+        v_gen_top_pt_.clear();
+    	v_gen_top_eta_.clear(); 
+        v_gen_top_phi_.clear();
+        v_reco_top_mass_.clear();
+        v_reco_top_pt_.clear();
+        v_reco_top_eta_.clear();
+        v_reco_top_phi_.clear();
+        //add vectors................
         
         // Loop over jets
-        std::cout << "Number of tops in event: " << had_tops.size() << std::endl;
-        for ( unsigned ihad=0; ihad<had_tops.size(); ihad++)
+        std::cout << "Number of tops in event: " << gen_tops.size() << std::endl;
+        for ( unsigned ihad=0; ihad<gen_tops.size(); ihad++)
         {
+            TLorentzVector the_top = gen_tops[ihad];
+	    TLorentzVector reco_top = reco_tops[ihad];
+
+            // Calculate properties
+            float gen_top_mass = the_top.M();
+            float gen_top_pt = the_top.Pt();
+            float gen_top_eta = the_top.Eta();
+            float gen_top_phi = the_top.Phi();
+    
+            v_gen_top_mass_.push_back(gen_top_mass);
+            v_gen_top_pt_.push_back(gen_top_pt);
+            v_gen_top_eta_.push_back(gen_top_eta);
+            v_gen_top_phi_.push_back(gen_top_phi);
+            
+            float reco_top_mass = reco_top.M();
+            float reco_top_pt = reco_top.Pt();
+            float reco_top_eta = reco_top.Eta();
+            float reco_top_phi = reco_top.Phi();
+            
+            v_reco_top_mass_.push_back(reco_top_mass);
+            v_reco_top_pt_.push_back(reco_top_pt);
+            v_reco_top_eta_.push_back(reco_top_eta);
+            v_reco_top_phi_.push_back(reco_top_phi);
+            
+
             float jet_P = 0;
             float jet_E = 0;
             float top_invM = 0;
@@ -192,7 +263,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
                 
                 jet_P = jet_P + iJet->pt();
                 jet_E = jet_E + iJet->energy();
-		if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+                if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
                 if ( std::abs(iJet->eta()) > maxJetEta_) continue;
               /*  if ( std::abs(iJet->pt()) < minJetPt_ )
  
@@ -205,13 +276,13 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_top( const edm::Event& iEvent, const ed
                   std::cout << " >> iJte_eta: "<< iJet->eta()  << std::endl; continue;
                 }*/
                 if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jet_m0:" << iJet->mass() << std::endl;
-               // if (had_tops[ihad].DeltaR(vjet)>0.8) continue;
+               // if (gen_tops[ihad].DeltaR(vjet)>0.8) continue;
                // if (wdau[ihad].DeltaR(vjet)>0.8) continue;
                // if (bdau[ihad].DeltaR(vjet)>0.8) continue;
                 
                 if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jet_m0:" << iJet->mass() << std::endl;
                 
-               // top_invM = sqrt(jet_E*jet_E - jet_P*jet_P);
+                //top_invM = sqrt(jet_E*jet_E - jet_P*jet_P);
                 
                 vJetIdxs.push_back(iJ);
                 
@@ -271,7 +342,10 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
     v_top_jet_energy_.clear();
     v_top_jet_m0_.clear();
     v_top_jet_dR_.clear();
-    v_top_jet_M_.clear();
+   // v_top_jet_M_.clear();
+   // v_gen_top_mass_.clear();
+   // v_gen_top_pt_.clear();
+   // v_gen_top_eta_.clear();
     
     
     seljet_genpart_collid.clear();
@@ -347,8 +421,10 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet_top ( const edm::Event& iEvent, const 
         v_top_jet_energy_.push_back( thisJet->energy() );
         v_top_jet_m0_.push_back( thisJet->mass() );
         v_top_jet_phi_.push_back( thisJet->phi() );
-        float top_invM = sqrt(pow(thisJet->energy(), 2) - pow(thisJet->px(), 2) - pow(thisJet->py(), 2) - pow(thisJet->pz(), 2));
-        v_top_jet_M_.push_back(top_invM);
+        //v_gen_top_mass_.push_back( the_top->mass() );
+        //v_gen_top_pt_.push_back( the_top->pt() );
+        //v_gen_top_eta_.push_back( the_top->eta() );
+        
         
         TLorentzVector TLVJet(thisJet->px(),thisJet->py(),thisJet->pz(),thisJet->energy());
         double cosTheta = TLVJet.CosTheta();
